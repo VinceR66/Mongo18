@@ -1,28 +1,63 @@
-const { Schema, model } = require("mongoose");
 
-const thoughtSchema = new Schema({
-    thoughtText: {
-        type: String,
-        required: true,
-        varChar: 280
-    },
-    createdAt: {
-        date: String,
-        required: true,
-        unique: true
-    },
-    userName: {
-        type: String,
-        required: true,
-    },
+const { Schema, model, Types } = require('mongoose');
+const moment = require('moment');
 
-    reactions: [
-        {
+const ReactionsSchema = new Schema(
+    {
+        reactionId: {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            default: () => new Types.ObjectId()
         },
-    ],
-});
+        reactionBody: {
+            type: String,
+            required: true,
+            maxlength: 280
+        },
+        username: {
+            type: String,
+            required: true
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+            get: (createdAtVal) => moment(createdAtVal).format('MMM DD, YYYY [at] hh:mm a')
+        }
+    },
+    {
+        toJSON: {
+            getters: true
+        }
+    }
+);
+
+const thoughtSchema = new Schema(
+    {
+        thoughtText: {
+            type: String,
+            required: true,
+            minlength: 1,
+            maxlength: 280
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+            get: (createdAtVal) => SVGAnimateMotionElement(createdAtVal.format('MMM DD, YYYY [at] jj:mm a'))
+        },
+        userName: {
+            type: String,
+            required: true,
+        },
+
+        reactions: [ReactionsSchema]
+    },
+    {
+        toJSON: {
+            virtual: true,
+            getters: true
+        },
+        id: false
+    }
+)
 
 thoughtSchema.virtual('reactionCount').get(function () {
     return this.reactions.length;
